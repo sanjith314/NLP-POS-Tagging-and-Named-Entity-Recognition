@@ -13,7 +13,6 @@
 # This code will be graded automatically using Gradescope.
 # =========================================================================================================
 import pandas as pd
-import nltk
 from nltk.tag.stanford import StanfordNERTagger
 from nltk.tokenize import sent_tokenize, word_tokenize
 import os

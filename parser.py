@@ -31,22 +31,10 @@ nltk.download('treebank')
 
 def get_treebank_data():
     tagged_sents = treebank.tagged_sents()
-
     split_idx = int(0.8 * len(tagged_sents))
-
     train_sents = tagged_sents[:split_idx]
     test_sents = tagged_sents[split_idx:]
-
-    vocab = set()
-    tagset = set()
-
-    for sent in tagged_sents:
-        for word, tag in sent:
-            vocab.add(word)
-            tagset.add(tag)
-
-    return train_sents, test_sents, vocab, tagset
-
+    return train_sents, test_sents 
 
 # Function: compute_tag_trans_probs
 # Input: train_data (list of tagged sentences)
@@ -57,29 +45,26 @@ def get_treebank_data():
 from collections import defaultdict
 
 def compute_tag_trans_probs(train_sents):
+    from collections import defaultdict
     tag_bigram_counts = defaultdict(lambda: defaultdict(int))
     tag_counts = defaultdict(int)
 
+    START = "<START>"
     for sent in train_sents:
-        prev_tag = "<START>"
+        prev_tag = START
         tag_counts[prev_tag] += 1
-
         for _, tag in sent:
             tag_bigram_counts[prev_tag][tag] += 1
             tag_counts[tag] += 1
             prev_tag = tag
 
-    trans_probs = defaultdict(dict)
-
-    for prev_tag in tag_bigram_counts:
-        for curr_tag in tag_bigram_counts[prev_tag]:
-            trans_probs[prev_tag][curr_tag] = (
-                tag_bigram_counts[prev_tag][curr_tag] /
-                tag_counts[prev_tag]
-            )
-
-    return trans_probs
-
+    A = {}
+    for prev_tag, curr_dict in tag_bigram_counts.items():
+        A[prev_tag] = {}
+        total = tag_counts[prev_tag]
+        for curr_tag, c in curr_dict.items():
+            A[prev_tag][curr_tag] = c / total
+    return A
 
 # Function: compute_emission_probs
 # Input: train_data (list of tagged sentences)
@@ -88,24 +73,23 @@ def compute_tag_trans_probs(train_sents):
 # Iterates through each sentence in the training data to count occurrences of each tag emitting a specific word, then calculates probabilities.
 
 def compute_emission_probs(train_sents):
-    word_tag_counts = defaultdict(lambda: defaultdict(int))
+    from collections import defaultdict
+    emission_counts = defaultdict(lambda: defaultdict(int))
     tag_counts = defaultdict(int)
 
     for sent in train_sents:
         for word, tag in sent:
-            word_tag_counts[tag][word] += 1
+            emission_counts[tag][word] += 1
             tag_counts[tag] += 1
 
-    emit_probs = defaultdict(dict)
+    B = {}
+    for tag, word_dict in emission_counts.items():
+        B[tag] = {}
+        total = tag_counts[tag]
+        for word, c in word_dict.items():
+            B[tag][word] = c / total
+    return B
 
-    for tag in word_tag_counts:
-        for word in word_tag_counts[tag]:
-            emit_probs[tag][word] = (
-                word_tag_counts[tag][word] /
-                tag_counts[tag]
-            )
-
-    return emit_probs
 
 
 # Function: viterbi_algorithm
@@ -118,14 +102,36 @@ def viterbi_algorithm(words, A, B):
     states = list(B.keys())
     Vit = [{}]
     path = {}
+
+    # t = 0
     for state in states:
-        Vit[0][state] = B.get(state, {}).get(words[0], 0.0001)
+        emit = B.get(state, {}).get(words[0], 0.0001)
+        trans = A.get("<START>", {}).get(state, 0.0001)
+        Vit[0][state] = emit * trans
         path[state] = [state]
 
     for t in range(1, len(words)):
-        pass
+        Vit.append({})
+        new_path = {}
+        for curr in states:
+            emit = B.get(curr, {}).get(words[t], 0.0001)
+            best_prob = -1
+            best_prev = None
+            for prev in states:
+                trans = A.get(prev, {}).get(curr, 0.0001)
+                prob = Vit[t - 1][prev] * trans * emit
+                if prob > best_prob:
+                    best_prob = prob
+                    best_prev = prev
+            Vit[t][curr] = best_prob
+            new_path[curr] = path[best_prev] + [curr]
+        path = new_path
 
-    return None
+    # best final state
+    last_t = len(words) - 1
+    best_state = max(states, key=lambda s: Vit[last_t][s])
+    return path[best_state]
+
 
 # Function: evaluate_pos_tagger
 # Input: test_data (tagged sentences for testing), A (transition probabilities), B (emission probabilities)
@@ -136,8 +142,16 @@ def viterbi_algorithm(words, A, B):
 def evaluate_pos_tagger(test_data, A, B):
     correct = 0
     total = 0
-    accuracy = None
-    return accuracy
+    for sent in test_data:
+        words = [w for w, t in sent]
+        gold_tags = [t for w, t in sent]
+        pred_tags = viterbi_algorithm(words, A, B)
+        for g, p in zip(gold_tags, pred_tags):
+            if g == p:
+                correct += 1
+            total += 1
+    return correct / total if total > 0 else 0.0
+
 
 
 # Use this main function to test your code. Sample code is provided to assist with the assignment;
