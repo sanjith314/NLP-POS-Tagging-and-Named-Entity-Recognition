@@ -1,17 +1,3 @@
-# CS421: Natural Language Processing
-# University of Illinois at Chicago
-# Spring 2026
-# Assignment 1
-#
-# Do not rename/delete any functions or global variables provided in this template and write your solution
-# in the specified sections. Use the main function to test your code when running it from a terminal.
-# Avoid writing that code in the global scope; however, you should write additional functions/classes
-# as needed in the global scope. These templates may also contain important information and/or examples
-# in comments so please read them carefully. If you want to use external packages not specified in the
-# assignment then you need prior approval from course staff.
-#
-# This code will be graded automatically using Gradescope.
-# =========================================================================================================
 import pandas as pd
 from nltk.tag.stanford import StanfordNERTagger
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -62,14 +48,8 @@ def get_ner(text, path_to_jar, path_to_model):
 
     return ner_tags
 
-
-
-# Use this main function to test your code. Sample code is provided to assist with the assignment;
-# feel free to change/remove it. Some of the provided sample code will help you in answering
-# questions, but it won't work correctly until all functions have been implemented.
 if __name__ == "__main__":
     
-    # Paths to Stanford NER tagger model and jar file.
     path_to_jar = None
     path_to_model = None
 

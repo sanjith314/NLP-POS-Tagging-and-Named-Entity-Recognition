@@ -1,17 +1,3 @@
-# CS421: Natural Language Processing
-# University of Illinois at Chicago
-# Spring 2026
-# Assignment 1
-#
-# Do not rename/delete any functions or global variables provided in this template and write your solution
-# in the specified sections. Use the main function to test your code when running it from a terminal.
-# Avoid writing that code in the global scope; however, you should write additional functions/classes
-# as needed in the global scope. These templates may also contain important information and/or examples
-# in comments so please read them carefully. If you want to use external packages not specified in the
-# assignment then you need prior approval from course staff.
-#
-# This code will be graded automatically using Gradescope.
-# =========================================================================================================
 import nltk
 from nltk.corpus import treebank
 import numpy as np
@@ -152,14 +138,8 @@ def evaluate_pos_tagger(test_data, A, B):
             total += 1
     return correct / total if total > 0 else 0.0
 
-
-
-# Use this main function to test your code. Sample code is provided to assist with the assignment;
-# feel free to change/remove it. Some of the provided sample code will help you in answering
-# questions, but it won't work correctly until all functions have been implemented.
 if __name__ == "__main__":
     # Main function to train and evaluate the POS tagger.
-
 
     train_data, test_data = get_treebank_data()
     A = compute_tag_trans_probs(train_data)
