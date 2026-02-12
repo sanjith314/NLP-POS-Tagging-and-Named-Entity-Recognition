@@ -39,7 +39,6 @@ STANFORD_NER_MODEL = os.path.join(
 # fname: A string containing text to be processed
 # Returns: A list of tuples containing (token, tag)
 def get_ner(text, path_to_jar, path_to_model):
-    # Use global paths if None provided
     if path_to_jar is None:
         path_to_jar = STANFORD_NER_JAR
     if path_to_model is None:
@@ -77,7 +76,6 @@ if __name__ == "__main__":
 
     data = pd.read_csv('dataset.csv')
 
-    
     for index, row in data.iterrows():
         if index >= 2: 
             break

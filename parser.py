@@ -158,6 +158,3 @@ if __name__ == "__main__":
     # Evaluate the model's accuracy
     accuracy = evaluate_pos_tagger(test_data, A, B)
     print(f"Accuracy of the HMM-based POS Tagger: {accuracy:.4f}") ## Expected accuracy around 0.8743
-
-
-
